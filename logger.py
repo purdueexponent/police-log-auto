@@ -31,7 +31,8 @@ def processRow(row):
                             ).date()
                         )
                     )
-        tmplist.append(cell.value)
+        else:
+            tmplist.append(cell.value)
     return tmplist
 
 
@@ -46,7 +47,7 @@ def main(*argv):
     # TODO: make this work using input()
     whereString = input("Please input folder path: ")
 
-    wb = xlrd.open_workbook(whereString)
+    wb = xlrd.open_workbook(whereString, formatting_info=True)
 
     # Get the first and only sheet of the Excel sheet
     sheet = wb.sheets()[0]
