@@ -6,6 +6,7 @@ from googleapiclient.discovery import build
 from dotenv import load_dotenv
 import os
 
+import sys
 
 # Method to abstract the appending of the values to the gSheet.
 def write_to_sheet(sheet, sheet_id, range_name, value_input_option, body):
@@ -36,7 +37,7 @@ def processRow(row):
     return tmplist
 
 
-def main(*argv):
+def main():
     # Let's initialize some values.
     # All env vars are located in the .env file (not in repo).
     load_dotenv()
@@ -45,9 +46,16 @@ def main(*argv):
 
     # Open the workbook in the source folder
     # TODO: make this work using input()
-    whereString = input("Please input folder path: ")
+    if(len(sys.argv) == 1):
+        whereString = input("Please input folder path: ")
+    else:
+        whereString = sys.argv[1]
 
-    wb = xlrd.open_workbook(whereString, formatting_info=True)
+    try:
+        wb = xlrd.open_workbook(whereString, formatting_info=True)
+    except FileNotFoundError:
+        print("Error: File \'%s\' not found."%whereString)
+        exit()
 
     # Get the first and only sheet of the Excel sheet
     sheet = wb.sheets()[0]
