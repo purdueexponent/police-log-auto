@@ -6,6 +6,8 @@ from googleapiclient.discovery import build
 from dotenv import load_dotenv
 import os
 
+from datetime import date
+
 def write_to_sheet(sheet, sheet_id, range_name, value_input_option, body):
     # Google Python API Client method to write values
     result = sheet.values().append(
@@ -16,7 +18,22 @@ def write_to_sheet(sheet, sheet_id, range_name, value_input_option, body):
     ).execute()
 
 
-def main():
+def processRow(row):
+    tmplist = []
+    for cell in row:
+        if(cell.ctype == 3):
+            tmplist.append(
+                    str(
+                        xlrd.xldate.xldate_as_datetime(
+                            cell.value, 0
+                            ).date()
+                        )
+                    )
+        tmplist.append(cell.value)
+    
+    return tmplist
+
+def main(*argv):
 
 
     # Let's initialize some values.
@@ -27,7 +44,11 @@ def main():
     
     # Open the workbook in the source folder
     # TODO: make this work using input()
-    wb = xlrd.open_workbook("src/wlpd_051419.xls")
+    whereString = input("Please input folder path: ")
+    try:
+        wb = xlrd.open_workbook(whereString)
+    except:
+        exit()
     
     # Get the first and only sheet of the Excel sheet
     sheet = wb.sheets()[0]
@@ -45,13 +66,13 @@ def main():
     values = []
 
     for row in sheet.get_rows():
-        values.append(row)
-    
+        values.append(processRow(row))
+
+
     # Pop the first list since those are the headers
     values.pop(0)
 
     # Write the new values to the sheet
-
     body = {
         'values': values
     }
